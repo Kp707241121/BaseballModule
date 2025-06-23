@@ -32,7 +32,7 @@ if st.button("🔄 Refresh Stats"):
 
 # --- Load JSON Data ---
 @st.cache_data
-def load_team_stats(path="data/team_stats.json"):
+def load_team_stats(path="team_stats.json"):
     with open(path) as f:
         return json.load(f)
 
