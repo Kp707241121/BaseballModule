@@ -89,7 +89,7 @@ final_standings = sorted(final_standings, key=lambda x: x.final_standing)
 final_df = pd.DataFrame([{
     "Rank": idx + 1,
     "Team": team.team_name,
-    "Final Standing": team.final_standing,
+    "Final Standing": team.standing,
     "Wins": team.wins,
     "Losses": team.losses,
     "Ties": team.ties
