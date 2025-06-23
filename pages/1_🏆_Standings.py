@@ -45,7 +45,7 @@ selected_team = next(team for team in league.teams if team.team_name == selected
 
 # Display team schedule
 st.subheader(f"Schedule for {selected_team_name}")
-for matchup in selected_team.schedule:
+for week_number, matchup in enumerate(selected_team.schedule, start=1):
     if matchup.home_team == selected_team:
         opponent = matchup.away_team
         location = "Home"
@@ -58,10 +58,9 @@ for matchup in selected_team.schedule:
         opp_score = matchup.home_team_live_score
 
     opponent_name = opponent.team_name if opponent else "BYE"
-    week = getattr(matchup, "matchup_period", getattr(matchup, "week", None))  # ✅ Now will return proper week
 
     schedule_data.append({
-        "Week": week,
+        "Week": week_number,  # ✅ Now explicitly tracking week
         "Opponent": opponent_name,
         "Location": location,
         "Score": score,
