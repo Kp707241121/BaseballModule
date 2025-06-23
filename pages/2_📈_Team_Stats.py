@@ -95,5 +95,4 @@ fig_radar = px.line(
     markers=True,
     title="Normalized Stat Comparison Across Teams"
 )
-fig_radar.update_traces(fill='toself')
 st.plotly_chart(fig_radar)
