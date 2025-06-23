@@ -54,20 +54,22 @@ for matchup in selected_team.schedule:
         opponent = matchup.away_team
         location = "Home"
         score = matchup.home_team_live_score
+        opp_score = matchup.away_team_live_score
     else:
         opponent = matchup.home_team
         location = "Away"
+        score = matchup.away_team_live_score
+        opp_score = matchup.home_team_live_score
 
     opponent_name = opponent.team_name if opponent else "BYE"
-    week = getattr(m, "matchup_period", None)
+    week = getattr(matchup, "matchup_period", getattr(matchup, "week", None))
 
     schedule_data.append({
         "Week": week,
         "Opponent": opponent_name,
         "Location": location,
         "Score": score,
-        "OpponentScore": matchup.away_team_live_score
-    })
+        "OpponentScore": opp_score,
 
 df = pd.DataFrame(schedule_data).sort_values(by="Week")
 df["Result"] = df.apply(lambda row: "W" if row["Score"] > row["OpponentScore"] else "L" if row["Score"] < row["OpponentScore"] else "T" if row["Score"] == row["OpponentScore"] else "Pending", axis=1)
