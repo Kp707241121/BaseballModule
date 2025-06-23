@@ -78,4 +78,7 @@ df["Result"] = df.apply(
 st.dataframe(df, use_container_width=True, hide_index=True)
 
 #final
-standings = league.finalstandings()
+final_standings = league.standings()
+
+for i, team in enumerate(final_standings, start=1):
+    print(f"{i}. {team.team_name} (Final: {team.final_standing}, Current: {team.standing})")
