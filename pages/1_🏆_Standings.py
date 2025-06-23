@@ -82,5 +82,5 @@ st.title("🏆 Final Standings")
 
 # Filter only teams with a final_standing value
 
-team = league.final_standings()[0]
+team = team.final_standing()[0]
 st.write(vars(team))
