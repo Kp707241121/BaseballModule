@@ -14,6 +14,49 @@ st.header("⚾ League Standings")
 manager = LeagueManager(league_id=121531, year=2025)
 league = manager.get_league()
 
+# --- Schedule Viewer ---
+st.header("📅 Team Schedule Viewer")
+schedule_data = []
+
+# Pick team
+team_names = [team.team_name for team in league.teams]
+selected_team_name = st.selectbox("Select a team to view schedule:", team_names)
+selected_team = next(team for team in league.teams if team.team_name == selected_team_name)
+
+# Display team schedule
+st.subheader(f"Schedule for {selected_team_name}")
+for week_number, matchup in enumerate(selected_team.schedule, start=1):
+    if matchup.home_team == selected_team:
+        opponent = matchup.away_team
+        location = "Home"
+        score = matchup.home_team_live_score
+        opp_score = matchup.away_team_live_score
+    else:
+        opponent = matchup.home_team
+        location = "Away"
+        score = matchup.away_team_live_score
+        opp_score = matchup.home_team_live_score
+
+    opponent_name = opponent.team_name if opponent else "BYE"
+
+    schedule_data.append({
+        "Week": week_number,  # ✅ Now explicitly tracking week
+        "Opponent": opponent_name,
+        "Score": score,
+        "OpponentScore": opp_score
+    })
+
+# Display
+df = pd.DataFrame(schedule_data).sort_values(by="Week")
+df["Result"] = df.apply(
+    lambda row: "W" if row["Score"] > row["OpponentScore"]
+    else "L" if row["Score"] < row["OpponentScore"]
+    else "T" if row["Score"] == row["OpponentScore"]
+    else "Pending",
+    axis=1
+)
+st.dataframe(df, use_container_width=True, hide_index=True)
+
 # --- Standings ---
 standings = league.standings()
 df_standings = pd.DataFrame([{
@@ -60,46 +103,3 @@ df_summary = pd.DataFrame(standings_summary)
 # Display in Streamlit
 st.header("🏆 Final Standings")
 st.dataframe(df_summary, use_container_width=True, hide_index=True)
-
-# --- Schedule Viewer ---
-st.header("📅 Team Schedule Viewer")
-schedule_data = []
-
-# Pick team
-team_names = [team.team_name for team in league.teams]
-selected_team_name = st.selectbox("Select a team to view schedule:", team_names)
-selected_team = next(team for team in league.teams if team.team_name == selected_team_name)
-
-# Display team schedule
-st.subheader(f"Schedule for {selected_team_name}")
-for week_number, matchup in enumerate(selected_team.schedule, start=1):
-    if matchup.home_team == selected_team:
-        opponent = matchup.away_team
-        location = "Home"
-        score = matchup.home_team_live_score
-        opp_score = matchup.away_team_live_score
-    else:
-        opponent = matchup.home_team
-        location = "Away"
-        score = matchup.away_team_live_score
-        opp_score = matchup.home_team_live_score
-
-    opponent_name = opponent.team_name if opponent else "BYE"
-
-    schedule_data.append({
-        "Week": week_number,  # ✅ Now explicitly tracking week
-        "Opponent": opponent_name,
-        "Score": score,
-        "OpponentScore": opp_score
-    })
-
-# Display
-df = pd.DataFrame(schedule_data).sort_values(by="Week")
-df["Result"] = df.apply(
-    lambda row: "W" if row["Score"] > row["OpponentScore"]
-    else "L" if row["Score"] < row["OpponentScore"]
-    else "T" if row["Score"] == row["OpponentScore"]
-    else "Pending",
-    axis=1
-)
-st.dataframe(df, use_container_width=True, hide_index=True)
