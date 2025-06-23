@@ -52,8 +52,8 @@ def get_top3_for_year(league_id: int, year: int):
 
 # Collect data for multiple years
 standings_summary = [
-    get_top3_for_year(league_id=121531, year=2023),
-    get_top3_for_year(league_id=121531, year=2024)
+    get_top3_for_year(league_id=121531, year=2024),
+    get_top3_for_year(league_id=121531, year=2023)
 ]
 
 # Create a DataFrame
