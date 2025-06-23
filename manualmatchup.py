@@ -1,4 +1,4 @@
-from espn_api.baseball import Matchup as BaseMatchup
+from matchup import Matchup as BaseMatchup
 
 class Scores(BaseMatchup):
     """Custom Matchup class to expose live scores."""
