@@ -78,4 +78,4 @@ df["Result"] = df.apply(
 st.dataframe(df, use_container_width=True, hide_index=True)
 
 #final
-standings = league.standings(2024)
+standings = league.finalstandings()
