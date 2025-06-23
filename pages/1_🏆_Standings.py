@@ -66,7 +66,7 @@ for matchup in selected_team.schedule:
         "Week": week,
         "Opponent": opponent_name,
         "Location": location,
-        "Score": = matchup.home_team_live_score,
+        "Score": = score,
         "OpponentScore": matchup.away_team_live_score
     })
 
