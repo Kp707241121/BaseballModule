@@ -12,7 +12,7 @@ manager = LeagueManager(league_id=121531, year=2025)
 league = manager.get_league()
 
 # --- Standings ---
-st.header("⚾ League Standings")
+st.header("🏆 League Standings")
 standings = league.standings()
 df_standings = pd.DataFrame([{
     "Overall": idx + 1,
@@ -98,5 +98,5 @@ standings_summary = [
 df_summary = pd.DataFrame(standings_summary)
 
 # Display in Streamlit
-st.header("🏆 Final Standings")
+st.header("👑 Final Standings")
 st.dataframe(df_summary, use_container_width=True, hide_index=True)
