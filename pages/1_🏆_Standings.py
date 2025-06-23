@@ -11,6 +11,26 @@ League._matchup_class = Scores  # ✅ Force all matchups to use your patched cla
 manager = LeagueManager(league_id=121531, year=2025)
 league = manager.get_league()
 
+# --- Standings ---
+st.header("⚾ League Standings")
+standings = league.standings()
+df_standings = pd.DataFrame([{
+    "Overall": idx + 1,
+    "Logo": team.logo_url,
+    "Team": team.team_name,
+    "Wins": team.wins,
+    "Losses": team.losses,
+    "Ties": team.ties
+} for idx, team in enumerate(standings)])
+
+st.data_editor(
+    df_standings,
+    column_config={
+        "Logo": st.column_config.ImageColumn("Team Logo", width="small")
+    },
+    hide_index=True,
+    use_container_width=True
+)
 # --- Schedule Viewer ---
 st.header("📅 Team Schedule Viewer")
 schedule_data = []
@@ -52,27 +72,6 @@ df["Result"] = df.apply(
     axis=1
 )
 st.dataframe(df, use_container_width=True, hide_index=True)
-
-# --- Standings ---
-st.header("⚾ League Standings")
-standings = league.standings()
-df_standings = pd.DataFrame([{
-    "Overall": idx + 1,
-    "Logo": team.logo_url,
-    "Team": team.team_name,
-    "Wins": team.wins,
-    "Losses": team.losses,
-    "Ties": team.ties
-} for idx, team in enumerate(standings)])
-
-st.data_editor(
-    df_standings,
-    column_config={
-        "Logo": st.column_config.ImageColumn("Team Logo", width="small")
-    },
-    hide_index=True,
-    use_container_width=True
-)
 
 # --- final Standings ---
 def get_top3_for_year(league_id: int, year: int):
