@@ -1,10 +1,10 @@
 import streamlit as st
 import pandas as pd
 from leagueManager import LeagueManager
+from team import Team
 from manualmatchup import Scores# ✅ Use your custom Matchup subclass
 # Inject your patched Scores logic into ESPN League
 from espn_api.baseball import League
-from espn_api.baseball import Team as tm
 League._matchup_class = Scores  # ✅ Force all matchups to use your patched class
 
 # --- Header ---
@@ -82,8 +82,12 @@ st.dataframe(df, use_container_width=True, hide_index=True)
 st.title("🏆 Final Standings")
 
 # Only include teams from 2024 and where final_standing exists
+# For 2023 final standings
+Priormanager = LeagueManager(league_id=121531, year=2023)
+Priorleague = Priormanager.get_league()
+
 final_standings = sorted(
-    [team for team in league.teams if team.year == 2024 and team.final_standing > 0],
+    [team for team in Priorleague.teams if team.final_standing > 0],
     key=lambda t: t.final_standing
 )
 
@@ -93,4 +97,5 @@ df = pd.DataFrame([{
     "Final Standing": team.final_standing
 } for i, team in enumerate(final_standings)])
 
+st.title("🏆 Final Standings (2023)")
 st.dataframe(df, use_container_width=True)
