@@ -73,8 +73,6 @@ def compute_team_stats():
 
 if __name__ == "__main__":
     final_stats = compute_team_stats()
-
     with open("team_stats.json", "w") as f:
         json.dump(final_stats, f, indent=4)
-
-    print(json.dumps(final_stats, indent=4))
+    print("✅ team_stats.json saved")
