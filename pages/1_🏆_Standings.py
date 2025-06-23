@@ -58,6 +58,7 @@ for matchup in selected_team.schedule:
     else:
         opponent = matchup.home_team
         location = "Away"
+        score = matchup.away_team_live_score
 
     opponent_name = opponent.team_name if opponent else "BYE"
     week = getattr(matchup, "matchup_period", None)
@@ -66,7 +67,7 @@ for matchup in selected_team.schedule:
         "Week": week,
         "Opponent": opponent_name,
         "Location": location,
-        "Score": score,
+        "Score": = matchup.home_team_live_score,
         "OpponentScore": matchup.away_team_live_score
     })
 
