@@ -58,7 +58,7 @@ bar_ascending = selected_bar_stat in ASCENDING_STATS
 df_sorted_bar = df_stats.sort_values(by=selected_bar_stat, ascending=bar_ascending)
 
 fig_bar, ax_bar = plt.subplots(figsize=(12, 6))
-bars = ax_bar.bar(df_sorted_bar.index, df_sorted_bar[selected_bar_stat], color='steelblue')
+bars = ax_bar.bar(df_sorted_bar.index, df_sorted_bar[selected_bar_stat], color='lightcoral')
 ax_bar.set_title(f"{selected_bar_stat} by Team")
 ax_bar.set_xlabel("Team")
 ax_bar.set_ylabel(selected_bar_stat)
