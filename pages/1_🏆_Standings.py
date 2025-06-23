@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from leagueManager import LeagueManager
-from team import Team
+from teams import Team
 from manualmatchup import Scores# ✅ Use your custom Matchup subclass
 # Inject your patched Scores logic into ESPN League
 from espn_api.baseball import League
