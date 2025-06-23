@@ -7,9 +7,7 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 from sklearn.preprocessing import MinMaxScaler
 import subprocess
-import sys
-import os
-from leagueManager import LeagueManager
+from leagueManager import LeagueManager  # ✅ from root
 
 # --- Constants ---
 STAT_ORDER = ['R', 'HR', 'RBI', 'OBP', 'SB', 'K', 'W', 'SV', 'ERA', 'WHIP']
@@ -32,8 +30,8 @@ if st.button("🔄 Refresh Stats"):
 
 # --- Load JSON Data ---
 @st.cache_data
-def load_team_stats(path="team_stats.json"):
-    with open(path) as f:
+def load_team_stats():
+    with open("team_stats.json") as f:
         return json.load(f)
 
 team_stats = load_team_stats()
@@ -64,7 +62,7 @@ ax_bar.set_xlabel("Team")
 ax_bar.set_ylabel(selected_bar_stat)
 plt.xticks(rotation=45)
 
-# Add labels above bars
+# Labels on bars
 for bar in bars:
     height = bar.get_height()
     label = FORMAT_DICT[selected_bar_stat].format(height)
@@ -85,10 +83,9 @@ ax_line.set_title(f"{selected_line_stat} by Team")
 ax_line.set_xlabel("Team")
 ax_line.set_ylabel(selected_line_stat)
 plt.xticks(rotation=45)
-
 st.pyplot(fig_line)
 
-# --- Radar-style Normalized Line Plot ---
+# --- Radar-style Normalized Plot ---
 st.subheader("📊 Normalized Stat Comparison (Radar Style)")
 scaler = MinMaxScaler()
 df_normalized = pd.DataFrame(
