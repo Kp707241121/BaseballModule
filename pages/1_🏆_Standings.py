@@ -21,7 +21,6 @@ selected_team_name = st.selectbox("Select a team to view schedule:", team_names)
 selected_team = next(team for team in league.teams if team.team_name == selected_team_name)
 
 # Display team schedule
-st.subheader(f"Schedule for {selected_team_name}")
 for week_number, matchup in enumerate(selected_team.schedule, start=1):
     if matchup.home_team == selected_team:
         opponent = matchup.away_team
