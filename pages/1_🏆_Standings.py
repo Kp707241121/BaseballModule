@@ -1,41 +1,46 @@
+
+# pages/1_🏆_Standings.py
+
 import streamlit as st
 import pandas as pd
-from leagueManager import LeagueManager
-from manualmatchup import Scores  # ✅ Use your custom Matchup class
+from leagueManager import LeagueManager  # Your LeagueManager class
 
-# Patch in your custom Scores class
-from espn_api.baseball import League
-League._matchup_class = Scores  # ✅ Inject your custom logic
-
-# --- Header ---
 st.header("🏆 League Standings")
 
-# --- Init ---
+# Initialize
 manager = LeagueManager(league_id=121531, year=2025)
 league = manager.get_league()
 
-# --- Standings ---
+# Fetch standings
 standings = league.standings()
+
 df_standings = pd.DataFrame([{
     "Overall": idx + 1,
-    "Logo": team.logo_url,
+    "Logo": team.logo_url ,
     "Team": team.team_name,
     "Wins": team.wins,
     "Losses": team.losses,
     "Ties": team.ties
 } for idx, team in enumerate(standings)])
 
+# Streamlit layout
+
 st.data_editor(
     df_standings,
     column_config={
-        "Logo": st.column_config.ImageColumn("Team Logo", width="small")
+        "Logo": st.column_config.ImageColumn(
+            "Team Logo", width="small"
+        )
     },
     hide_index=True,
     use_container_width=True
 )
 
-# --- Schedule Viewer ---
+# Schedule
 st.title("📅 Team Schedule Viewer")
+
+# Collect schedule info
+schedule_data = []
 
 team_names = [team.team_name for team in league.teams]
 selected_team_name = st.selectbox("Select a team to view schedule:", team_names)
@@ -43,38 +48,26 @@ selected_team = next(team for team in league.teams if team.team_name == selected
 
 st.subheader(f"Schedule for {selected_team_name}")
 
-schedule_data = []
-for m in selected_team.schedule:
-    if m.home_team == selected_team:
-        opponent = m.away_team
+for matchup in selected_team.schedule:
+    if matchup.home_team == selected_team:
+        opponent = matchup.away_team
         location = "Home"
-        score = m.home_team_live_score
-        opponent_score = m.away_team_live_score
+        score = matchup.home_team_live_score
     else:
-        opponent = m.home_team
+        opponent = matchup.home_team
         location = "Away"
-        score = m.away_team_live_score
-        opponent_score = m.home_team_live_score
 
-    week = getattr(m, "matchup_period", None)
     opponent_name = opponent.team_name if opponent else "BYE"
+    week = getattr(matchup, "matchup_period", None)
 
     schedule_data.append({
-        "Week": week,
+        "Week": matchup.week,
         "Opponent": opponent_name,
         "Location": location,
         "Score": score,
-        "OpponentScore": opponent_score
+        "OpponentScore": matchup.away_team_live_score
     })
 
-df_schedule = pd.DataFrame(schedule_data).sort_values(by="Week")
-df_schedule["Result"] = df_schedule.apply(
-    lambda row: (
-        "W" if row["Score"] > row["OpponentScore"] else
-        "L" if row["Score"] < row["OpponentScore"] else
-        "T" if row["Score"] == row["OpponentScore"] else
-        "Pending"
-    ), axis=1
-)
-
-st.dataframe(df_schedule, use_container_width=True)
+df = pd.DataFrame(schedule_data).sort_values(by="Week")
+df["Result"] = df.apply(lambda row: "W" if row["Score"] > row["OpponentScore"] else "L" if row["Score"] < row["OpponentScore"] else "T" if row["Score"] == row["OpponentScore"] else "Pending", axis=1)
+df_schedule = st.write(df, hide_index=True)
