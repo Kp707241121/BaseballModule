@@ -4,7 +4,6 @@
 import streamlit as st
 import pandas as pd
 from leagueManager import LeagueManager  # Your LeagueManager class
-import manualmatchup as matchup
 
 st.header("🏆 League Standings")
 
