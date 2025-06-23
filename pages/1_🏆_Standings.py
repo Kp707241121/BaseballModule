@@ -7,6 +7,34 @@ from manualmatchup import Scores# ✅ Use your custom Matchup subclass
 from espn_api.baseball import League
 League._matchup_class = Scores  # ✅ Force all matchups to use your patched class
 
+# --- final Standings ---
+def get_top3_for_year(league_id: int, year: int):
+    manager = LeagueManager(league_id=league_id, year=year)
+    league = manager.get_league()
+    top3 = sorted(
+        [team for team in league.teams if team.final_standing > 0],
+        key=lambda t: t.final_standing
+    )[:3]
+    return {
+        "📆 Year": year,
+        "🏅 1st Place": top3[0].team_name if len(top3) > 0 else None,
+        "🥈 2nd Place": top3[1].team_name if len(top3) > 1 else None,
+        "🥉 3rd Place": top3[2].team_name if len(top3) > 2 else None,
+    }
+
+# Collect data for multiple years
+standings_summary = [
+    get_top3_for_year(league_id=121531, year=2024),
+    get_top3_for_year(league_id=121531, year=2023)
+]
+
+# Create a DataFrame
+df_summary = pd.DataFrame(standings_summary)
+
+# Display in Streamlit
+st.header("🏆 Final Standings")
+st.dataframe(df_summary, use_container_width=True, hide_index=True)
+
 # --- Header ---
 st.header("⭐ League Standings")
 
@@ -34,34 +62,6 @@ st.data_editor(
     use_container_width=True
 )
 
-# --- final Standings ---
-# Function to get top 3 teams from a given year
-def get_top3_for_year(league_id: int, year: int):
-    manager = LeagueManager(league_id=league_id, year=year)
-    league = manager.get_league()
-    top3 = sorted(
-        [team for team in league.teams if team.final_standing > 0],
-        key=lambda t: t.final_standing
-    )[:3]
-    return {
-        "📆 Year": year,
-        "🏅 1st Place": top3[0].team_name if len(top3) > 0 else None,
-        "🥈 2nd Place": top3[1].team_name if len(top3) > 1 else None,
-        "🥉 3rd Place": top3[2].team_name if len(top3) > 2 else None,
-    }
-
-# Collect data for multiple years
-standings_summary = [
-    get_top3_for_year(league_id=121531, year=2024),
-    get_top3_for_year(league_id=121531, year=2023)
-]
-
-# Create a DataFrame
-df_summary = pd.DataFrame(standings_summary)
-
-# Display in Streamlit
-st.header("🏆 Final Standings")
-st.dataframe(df_summary, use_container_width=True, hide_index=True)
 
 # --- Schedule Viewer ---
 st.title("📅 Team Schedule Viewer")
