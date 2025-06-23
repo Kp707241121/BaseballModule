@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 from sklearn.preprocessing import MinMaxScaler
 import subprocess
-from leagueManager import LeagueManager  # ✅ from root
+from leagueManager import LeagueManager
 
 # --- Constants ---
 STAT_ORDER = ['R', 'HR', 'RBI', 'OBP', 'SB', 'K', 'W', 'SV', 'ERA', 'WHIP']
@@ -18,17 +18,14 @@ FORMAT_DICT = {stat: "{:.3f}" if stat in FLOAT_COLS else "{:.0f}" for stat in ST
 # --- Page Title ---
 st.title("📈 Accumulated Team Stats")
 
-# --- Refresh Button ---
-if st.button("🔄 Refresh Stats"):
-    with st.spinner("Refreshing stats..."):
-        result = subprocess.run(["python", "getStats.py"], capture_output=True, text=True)
-        if result.returncode == 0:
-            st.success("✅ Stats refreshed successfully!")
-        else:
-            st.error("❌ Failed to refresh stats.")
-            st.text(result.stderr)
+# --- Auto-refresh stats on app load ---
+with st.spinner("🔄 Refreshing stats..."):
+    result = subprocess.run(["python", "getStats.py"], capture_output=True, text=True)
+    if result.returncode != 0:
+        st.error("❌ Failed to refresh stats.")
+        st.text(result.stderr)
 
-# --- Load JSON Data ---
+# --- Load Stats ---
 @st.cache_data
 def load_team_stats():
     with open("team_stats.json") as f:
@@ -40,7 +37,7 @@ df.index.name = "Team"
 df = df[STAT_ORDER]
 df_stats = df.copy()
 
-# --- Data Table ---
+# --- Display Table ---
 st.subheader("📋 Team Stat Table")
 st.dataframe(df.style.format(FORMAT_DICT), use_container_width=True)
 
@@ -62,7 +59,6 @@ ax_bar.set_xlabel("Team")
 ax_bar.set_ylabel(selected_bar_stat)
 plt.xticks(rotation=45)
 
-# Labels on bars
 for bar in bars:
     height = bar.get_height()
     label = FORMAT_DICT[selected_bar_stat].format(height)
@@ -85,7 +81,7 @@ ax_line.set_ylabel(selected_line_stat)
 plt.xticks(rotation=45)
 st.pyplot(fig_line)
 
-# --- Radar-style Normalized Plot ---
+# --- Radar-Style Comparison ---
 st.subheader("📊 Normalized Stat Comparison (Radar Style)")
 scaler = MinMaxScaler()
 df_normalized = pd.DataFrame(
