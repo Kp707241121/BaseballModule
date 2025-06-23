@@ -81,7 +81,7 @@ st.dataframe(df, use_container_width=True, hide_index=True)
 # --- Final Standings Display ---
 
 st.title("🏆 Final Standings (2024)")
-st.dataframe(df, use_container_width=True, index=false)
+st.dataframe(df, use_container_width=True, hide_index=true)
 # For 2024 final standings
 Priormanager = LeagueManager(league_id=121531, year=2024)
 Priorleague = Priormanager.get_league()
