@@ -8,7 +8,7 @@ from espn_api.baseball import League
 League._matchup_class = Scores  # ✅ Force all matchups to use your patched class
 
 # --- Header ---
-st.header("🏆 League Standings")
+st.header("⭐ League Standings")
 
 # --- Init league ---
 manager = LeagueManager(league_id=121531, year=2025)
