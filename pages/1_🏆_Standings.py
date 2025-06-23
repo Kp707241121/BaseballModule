@@ -34,6 +34,35 @@ st.data_editor(
     use_container_width=True
 )
 
+# --- final Standings ---
+# Function to get top 3 teams from a given year
+def get_top3_for_year(league_id: int, year: int):
+    manager = LeagueManager(league_id=league_id, year=year)
+    league = manager.get_league()
+    top3 = sorted(
+        [team for team in league.teams if team.final_standing > 0],
+        key=lambda t: t.final_standing
+    )[:3]
+    return {
+        "Year": year,
+        "1st Place": top3[0].team_name if len(top3) > 0 else None,
+        "2nd Place": top3[1].team_name if len(top3) > 1 else None,
+        "3rd Place": top3[2].team_name if len(top3) > 2 else None,
+    }
+
+# Collect data for multiple years
+standings_summary = [
+    get_top3_for_year(league_id=121531, year=2023),
+    get_top3_for_year(league_id=121531, year=2024)
+]
+
+# Create a DataFrame
+df_summary = pd.DataFrame(standings_summary)
+
+# Display in Streamlit
+st.title("🏆 Final Standings")
+st.dataframe(df_summary, use_container_width=True)
+
 # --- Schedule Viewer ---
 st.title("📅 Team Schedule Viewer")
 schedule_data = []
@@ -76,31 +105,3 @@ df["Result"] = df.apply(
     axis=1
 )
 st.dataframe(df, use_container_width=True, hide_index=True)
-
-# Function to get top 3 teams from a given year
-def get_top3_for_year(league_id: int, year: int):
-    manager = LeagueManager(league_id=league_id, year=year)
-    league = manager.get_league()
-    top3 = sorted(
-        [team for team in league.teams if team.final_standing > 0],
-        key=lambda t: t.final_standing
-    )[:3]
-    return {
-        "Year": year,
-        "1st Place": top3[0].team_name if len(top3) > 0 else None,
-        "2nd Place": top3[1].team_name if len(top3) > 1 else None,
-        "3rd Place": top3[2].team_name if len(top3) > 2 else None,
-    }
-
-# Collect data for multiple years
-standings_summary = [
-    get_top3_for_year(league_id=121531, year=2023),
-    get_top3_for_year(league_id=121531, year=2024)
-]
-
-# Create a DataFrame
-df_summary = pd.DataFrame(standings_summary)
-
-# Display in Streamlit
-st.title("🏆 Final Standings Summary")
-st.dataframe(df_summary, use_container_width=True)
