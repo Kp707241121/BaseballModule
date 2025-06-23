@@ -7,6 +7,18 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 from leagueManager import LeagueManager
 from sklearn.preprocessing import MinMaxScaler
+import subprocess
+
+
+if st.button("🔄 Refresh Stats"):
+    with st.spinner("Refreshing stats..."):
+        result = subprocess.run(["python", "getStats.py"], capture_output=True, text=True)
+        if result.returncode == 0:
+            st.success("✅ Stats refreshed successfully!")
+        else:
+            st.error("❌ Failed to refresh stats.")
+            st.text(result.stderr)
+
 
 STAT_ORDER = ['R', 'HR', 'RBI', 'OBP', 'SB', 'K', 'W', 'SV', 'ERA', 'WHIP']
 ASCENDING_STATS = {'ERA', 'WHIP'}  
@@ -66,8 +78,13 @@ plt.xticks(rotation=45)
 # Add value labels
 for bar in bars:
     height = bar.get_height()
-    ax.text(bar.get_x() + bar.get_width() / 2, height + 0.5, round(height, 2), ha='center', va='bottom')
+    value = height
+    fmt = format_dict[selected_stat]
+    label = fmt.format(value)
+    offset = (df_sorted[selected_stat].max() - df_sorted[selected_stat].min()) * 0.01 or 0.1
+    ax.text(bar.get_x() + bar.get_width() / 2, height + offset, label, ha='center', va='bottom')
 
+    
 st.pyplot(fig)
 
 # --- Line Chart ---
