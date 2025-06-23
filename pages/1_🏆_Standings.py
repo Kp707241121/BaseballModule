@@ -36,7 +36,7 @@ st.header("🏆 Final Standings")
 st.dataframe(df_summary, use_container_width=True, hide_index=True)
 
 # --- Header ---
-st.header("⭐ League Standings")
+st.header("⚾ League Standings")
 
 # --- Init league ---
 manager = LeagueManager(league_id=121531, year=2025)
