@@ -3,7 +3,7 @@ from espn_api.baseball import Matchup as BaseMatchup
 class Scores(BaseMatchup):
     """Custom Matchup class to expose live scores."""
     def __init__(self, data, week=None):
-        self.week = current.week
+        self.week = week
         self.home_team_live_score = None
         self.away_team_live_score = None
         self._fetch_matchup_info(data)
