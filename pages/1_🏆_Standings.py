@@ -7,6 +7,32 @@ from manualmatchup import Scores# ✅ Use your custom Matchup subclass
 from espn_api.baseball import League
 League._matchup_class = Scores  # ✅ Force all matchups to use your patched class
 
+# --- Header ---
+st.header("⚾ League Standings")
+
+# --- Init league ---
+manager = LeagueManager(league_id=121531, year=2025)
+league = manager.get_league()
+
+# --- Standings ---
+standings = league.standings()
+df_standings = pd.DataFrame([{
+    "Overall": idx + 1,
+    "Logo": team.logo_url,
+    "Team": team.team_name,
+    "Wins": team.wins,
+    "Losses": team.losses,
+    "Ties": team.ties
+} for idx, team in enumerate(standings)])
+
+st.data_editor(
+    df_standings,
+    column_config={
+        "Logo": st.column_config.ImageColumn("Team Logo", width="small")
+    },
+    hide_index=True,
+    use_container_width=True
+)
 # --- final Standings ---
 def get_top3_for_year(league_id: int, year: int):
     manager = LeagueManager(league_id=league_id, year=year)
@@ -34,34 +60,6 @@ df_summary = pd.DataFrame(standings_summary)
 # Display in Streamlit
 st.header("🏆 Final Standings")
 st.dataframe(df_summary, use_container_width=True, hide_index=True)
-
-# --- Header ---
-st.header("⚾ League Standings")
-
-# --- Init league ---
-manager = LeagueManager(league_id=121531, year=2025)
-league = manager.get_league()
-
-# --- Standings ---
-standings = league.standings()
-df_standings = pd.DataFrame([{
-    "Overall": idx + 1,
-    "Logo": team.logo_url,
-    "Team": team.team_name,
-    "Wins": team.wins,
-    "Losses": team.losses,
-    "Ties": team.ties
-} for idx, team in enumerate(standings)])
-
-st.data_editor(
-    df_standings,
-    column_config={
-        "Logo": st.column_config.ImageColumn("Team Logo", width="small")
-    },
-    hide_index=True,
-    use_container_width=True
-)
-
 
 # --- Schedule Viewer ---
 st.title("📅 Team Schedule Viewer")
