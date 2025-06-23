@@ -7,9 +7,6 @@ from manualmatchup import Scores# ✅ Use your custom Matchup subclass
 from espn_api.baseball import League
 League._matchup_class = Scores  # ✅ Force all matchups to use your patched class
 
-# --- Header ---
-st.header("⚾ League Standings")
-
 # --- Init league ---
 manager = LeagueManager(league_id=121531, year=2025)
 league = manager.get_league()
@@ -76,6 +73,8 @@ st.data_editor(
     hide_index=True,
     use_container_width=True
 )
+
+st.header("⚾ League Standings")
 # --- final Standings ---
 def get_top3_for_year(league_id: int, year: int):
     manager = LeagueManager(league_id=league_id, year=year)
