@@ -8,6 +8,7 @@ import plotly.express as px
 from sklearn.preprocessing import MinMaxScaler
 import subprocess
 from leagueManager import LeagueManager
+import getStats 
 
 # --- Constants ---
 STAT_ORDER = ['R', 'HR', 'RBI', 'OBP', 'SB', 'K', 'W', 'SV', 'ERA', 'WHIP']
