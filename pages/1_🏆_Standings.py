@@ -66,7 +66,6 @@ for matchup in selected_team.schedule:
     schedule_data.append({
         "Week": week,
         "Opponent": opponent_name,
-        "Location": location,
         "Score": score,
         "OpponentScore": matchup.away_team_live_score
     })
