@@ -83,7 +83,7 @@ st.title("🏆 Final Standings")
 
 # Only include teams from 2024 and where final_standing exists
 # For 2023 final standings
-Priormanager = LeagueManager(league_id=121531, year=2023)
+Priormanager = LeagueManager(league_id=121531, year=2024)
 Priorleague = Priormanager.get_league()
 
 final_standings = sorted(
