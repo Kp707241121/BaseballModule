@@ -62,7 +62,7 @@ for matchup in selected_team.schedule:
     week = getattr(m, "matchup_period", None)
 
     schedule_data.append({
-        "Week": matchup.week,
+        "Week": week,
         "Opponent": opponent_name,
         "Location": location,
         "Score": score,
