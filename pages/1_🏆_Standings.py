@@ -3,7 +3,8 @@ import pandas as pd
 from leagueManager import LeagueManager
 from manualmatchup import Scores# ✅ Use your custom Matchup subclass
 # Inject your patched Scores logic into ESPN League
-from espn_api.baseball import League, Team
+from espn_api.baseball import League
+from espn_api.baseball import Team as tm
 League._matchup_class = Scores  # ✅ Force all matchups to use your patched class
 
 # --- Header ---
@@ -81,6 +82,11 @@ st.dataframe(df, use_container_width=True, hide_index=True)
 st.title("🏆 Final Standings")
 
 # Filter only teams with a final_standing value
+df = pd.DataFrame([{
+    "Rank": i + 1,
+    "Team": team.team_name,
+    "Final Standing": team.final_standing
+} for i, team in enumerate(final_standings)])
 
-for team in league.teams:
-    st.write(f"{team.team_name}: {team.final_standing}")
+st.title("🏆 Final Standings")
+st.dataframe(df, use_container_width=True)
