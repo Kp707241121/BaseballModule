@@ -1,53 +1,50 @@
-
-# pages/1_🏆_Standings.py
-
 import streamlit as st
 import pandas as pd
-from leagueManager import LeagueManager  # Your LeagueManager class
+from leagueManager import LeagueManager
+from manualmatchup import Scores  # ✅ Use your custom Matchup subclass
 
+# Inject your patched Scores logic into ESPN League
+from espn_api.baseball import League
+League._matchup_class = Scores  # ✅ Force all matchups to use your patched class
+
+# --- Header ---
 st.header("🏆 League Standings")
 
-# Initialize
+# --- Init league ---
 manager = LeagueManager(league_id=121531, year=2025)
 league = manager.get_league()
 
-# Fetch standings
+# --- Standings ---
 standings = league.standings()
-
 df_standings = pd.DataFrame([{
     "Overall": idx + 1,
-    "Logo": team.logo_url ,
+    "Logo": team.logo_url,
     "Team": team.team_name,
     "Wins": team.wins,
     "Losses": team.losses,
     "Ties": team.ties
 } for idx, team in enumerate(standings)])
 
-# Streamlit layout
-
 st.data_editor(
     df_standings,
     column_config={
-        "Logo": st.column_config.ImageColumn(
-            "Team Logo", width="small"
-        )
+        "Logo": st.column_config.ImageColumn("Team Logo", width="small")
     },
     hide_index=True,
     use_container_width=True
 )
 
-# Schedule
+# --- Schedule Viewer ---
 st.title("📅 Team Schedule Viewer")
-
-# Collect schedule info
 schedule_data = []
 
+# Pick team
 team_names = [team.team_name for team in league.teams]
 selected_team_name = st.selectbox("Select a team to view schedule:", team_names)
 selected_team = next(team for team in league.teams if team.team_name == selected_team_name)
 
+# Display team schedule
 st.subheader(f"Schedule for {selected_team_name}")
-
 for matchup in selected_team.schedule:
     if matchup.home_team == selected_team:
         opponent = matchup.away_team
@@ -61,7 +58,7 @@ for matchup in selected_team.schedule:
         opp_score = matchup.home_team_live_score
 
     opponent_name = opponent.team_name if opponent else "BYE"
-    week = getattr(matchup, "matchup_period", getattr(matchup, "week", None))
+    week = getattr(matchup, "matchup_period", getattr(matchup, "week", None))  # ✅ Now will return proper week
 
     schedule_data.append({
         "Week": week,
@@ -70,6 +67,8 @@ for matchup in selected_team.schedule:
         "Score": score,
         "OpponentScore": opp_score
     })
+
+# Display
 df = pd.DataFrame(schedule_data).sort_values(by="Week")
 df["Result"] = df.apply(
     lambda row: "W" if row["Score"] > row["OpponentScore"]
@@ -79,4 +78,3 @@ df["Result"] = df.apply(
     axis=1
 )
 st.dataframe(df, use_container_width=True)
-
