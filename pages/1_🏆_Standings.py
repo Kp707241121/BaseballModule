@@ -68,7 +68,8 @@ for matchup in selected_team.schedule:
         "Opponent": opponent_name,
         "Location": location,
         "Score": score,
-        "OpponentScore": opp_score,
+        "OpponentScore": opp_score
+        )}
 
 df = pd.DataFrame(schedule_data).sort_values(by="Week")
 df["Result"] = df.apply(lambda row: "W" if row["Score"] > row["OpponentScore"] else "L" if row["Score"] < row["OpponentScore"] else "T" if row["Score"] == row["OpponentScore"] else "Pending", axis=1)
