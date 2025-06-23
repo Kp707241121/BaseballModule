@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from leagueManager import LeagueManager
-from manualmatchup import Scores  # ✅ Use your custom Matchup subclass
+from manualmatchup import Scores# ✅ Use your custom Matchup subclass
 
 # Inject your patched Scores logic into ESPN League
 from espn_api.baseball import League
@@ -83,5 +83,5 @@ st.title("🏆 Final Standings")
 
 # Filter only teams with a final_standing value
 
-team = league.scoreboard()[0]
+team = league.Team()[0]
 st.write(vars(team))
