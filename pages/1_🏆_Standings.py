@@ -82,14 +82,14 @@ st.dataframe(df, use_container_width=True, hide_index=True)
 st.title("🏆 Final Standings")
 
 # Filter only teams with a final_standing value
-final_standings = [team for team in league.teams if team.standing > 0]
+final_standings = [team for team in league.teams if team.final_standing > 0]
 final_standings = sorted(final_standings, key=lambda x: x.final_standing)
 
 # Format for display
 final_df = pd.DataFrame([{
     "Rank": idx + 1,
     "Team": team.team_name,
-    "Final Standing": team.standing,
+    "Final Standing": team.final_standing,
     "Wins": team.wins,
     "Losses": team.losses,
     "Ties": team.ties
@@ -97,7 +97,3 @@ final_df = pd.DataFrame([{
 
 # Display in Streamlit
 st.dataframe(final_df, use_container_width=True, hide_index=True)
-
-team = league.standings()[0]
-st.write(vars(team))
-
