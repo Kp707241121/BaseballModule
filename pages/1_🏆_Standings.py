@@ -90,7 +90,6 @@ final_standings = sorted(
 )
 
 df = pd.DataFrame([{
-    "Rank": i + 1,
     "Team": team.team_name,
     "Final Standing": team.final_standing
 } for i, team in enumerate(final_standings)])
