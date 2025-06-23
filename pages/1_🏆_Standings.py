@@ -53,7 +53,7 @@ for matchup in selected_team.schedule:
     if matchup.home_team == selected_team:
         opponent = matchup.away_team
         location = "Home"
-        score = matchup.home_team_live_score
+        score = m.home_team_live_score
     else:
         opponent = matchup.home_team
         location = "Away"
@@ -62,11 +62,11 @@ for matchup in selected_team.schedule:
     week = getattr(m, "matchup_period", None)
 
     schedule_data.append({
-        "Week": week,
+        "Week": m.week,
         "Opponent": opponent_name,
         "Location": location,
         "Score": score,
-        "OpponentScore": matchup.away_team_live_score
+        "OpponentScore": m.away_team_live_score
     })
 
 df = pd.DataFrame(schedule_data).sort_values(by="Week")
