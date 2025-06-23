@@ -62,7 +62,7 @@ st.header("🏆 Final Standings")
 st.dataframe(df_summary, use_container_width=True, hide_index=True)
 
 # --- Schedule Viewer ---
-st.title("📅 Team Schedule Viewer")
+st.header("📅 Team Schedule Viewer")
 schedule_data = []
 
 # Pick team
