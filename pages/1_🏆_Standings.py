@@ -82,8 +82,6 @@ st.dataframe(df, use_container_width=True, hide_index=True)
 st.title("🏆 Final Standings")
 
 # Filter only teams with a final_standing value
-final_standings = [team for team in league.teams if team.final_standing > 0]
-final_standings = sorted(final_standings, key=lambda x: x.final_standing)
 
 team = league.standings()[0]
 st.write(vars(team))
