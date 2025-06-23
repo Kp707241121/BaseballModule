@@ -76,4 +76,4 @@ df["Result"] = df.apply(
     else "Pending",
     axis=1
 )
-st.dataframe(df, use_container_width=True)
+st.dataframe(df, use_container_width=True, hide_index=True)
