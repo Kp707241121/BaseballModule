@@ -1,8 +1,9 @@
+# getStats.py
+
 from leagueManager import LeagueManager
 import json
 from collections import OrderedDict
 
-# Constants
 STAT_ORDER = ['R', 'HR', 'RBI', 'OBP', 'SB', 'K', 'W', 'SV', 'ERA', 'WHIP']
 AVERAGE_STATS = {'OBP'}
 
@@ -51,7 +52,6 @@ def compute_team_stats():
         count = matchup_counts[team]
         updated_stats = {}
 
-        # Derived stats
         ip = stats['OUTS'] / 3 if stats['OUTS'] else 0
         era = round((stats['ER'] * 9 / ip), 3) if ip else 0
         whip = round(((stats['P_BB'] + stats['P_H']) / ip), 3) if ip else 0
@@ -70,9 +70,7 @@ def compute_team_stats():
 
     return ordered_output
 
-
-if __name__ == "__main__":
-    final_stats = compute_team_stats()
-    with open("team_stats.json", "w") as f:
-        json.dump(final_stats, f, indent=4)
-    print("✅ team_stats.json saved")
+# Generate stats immediately if imported
+final_stats = compute_team_stats()
+with open("team_stats.json", "w") as f:
+    json.dump(final_stats, f, indent=4)
