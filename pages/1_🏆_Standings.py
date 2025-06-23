@@ -69,8 +69,14 @@ for matchup in selected_team.schedule:
         "Location": location,
         "Score": score,
         "OpponentScore": opp_score
-        )}
-
+    })
 df = pd.DataFrame(schedule_data).sort_values(by="Week")
-df["Result"] = df.apply(lambda row: "W" if row["Score"] > row["OpponentScore"] else "L" if row["Score"] < row["OpponentScore"] else "T" if row["Score"] == row["OpponentScore"] else "Pending", axis=1)
-df_schedule = st.write(df, hide_index=True)
+df["Result"] = df.apply(
+    lambda row: "W" if row["Score"] > row["OpponentScore"]
+    else "L" if row["Score"] < row["OpponentScore"]
+    else "T" if row["Score"] == row["OpponentScore"]
+    else "Pending",
+    axis=1
+)
+st.dataframe(df, use_container_width=True)
+
