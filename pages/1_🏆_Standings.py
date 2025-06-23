@@ -62,7 +62,6 @@ for week_number, matchup in enumerate(selected_team.schedule, start=1):
     schedule_data.append({
         "Week": week_number,  # ✅ Now explicitly tracking week
         "Opponent": opponent_name,
-        "Location": location,
         "Score": score,
         "OpponentScore": opp_score
     })
