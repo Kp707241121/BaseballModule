@@ -76,3 +76,6 @@ df["Result"] = df.apply(
     axis=1
 )
 st.dataframe(df, use_container_width=True, hide_index=True)
+
+#final
+standings = league.standings(0)
