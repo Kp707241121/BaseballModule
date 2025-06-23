@@ -61,7 +61,7 @@ df_summary = pd.DataFrame(standings_summary)
 
 # Display in Streamlit
 st.title("🏆 Final Standings")
-st.dataframe(df_summary, use_container_width=True)
+st.dataframe(df_summary, use_container_width=True, hide_index=True)
 
 # --- Schedule Viewer ---
 st.title("📅 Team Schedule Viewer")
