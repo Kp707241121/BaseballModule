@@ -44,10 +44,10 @@ def get_top3_for_year(league_id: int, year: int):
         key=lambda t: t.final_standing
     )[:3]
     return {
-        "Year": year,
-        "1st Place": top3[0].team_name if len(top3) > 0 else None,
-        "2nd Place": top3[1].team_name if len(top3) > 1 else None,
-        "3rd Place": top3[2].team_name if len(top3) > 2 else None,
+        "📆 Year": year,
+        "🏅 1st Place": top3[0].team_name if len(top3) > 0 else None,
+        "🥈 2nd Place": top3[1].team_name if len(top3) > 1 else None,
+        "🥉 3rd Place": top3[2].team_name if len(top3) > 2 else None,
     }
 
 # Collect data for multiple years
