@@ -81,16 +81,16 @@ st.dataframe(df, use_container_width=True, hide_index=True)
 # --- Final Standings Display ---
 st.title("🏆 Final Standings")
 
+# Only include teams from 2024 and where final_standing exists
 final_standings = sorted(
-    [team for team in league.teams if getattr(team, "final_standing", 0) > 0],
+    [team for team in league.teams if team.year == 2024 and team.final_standing > 0],
     key=lambda t: t.final_standing
 )
 
-# Now safely create the DataFrame
 df = pd.DataFrame([{
     "Rank": i + 1,
     "Team": team.team_name,
-    "Wins": team.wins,
-    "Losses": team.losses,
     "Final Standing": team.final_standing
 } for i, team in enumerate(final_standings)])
+
+st.dataframe(df, use_container_width=True)
