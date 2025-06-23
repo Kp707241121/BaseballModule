@@ -55,6 +55,7 @@ df["Result"] = df.apply(
 st.dataframe(df, use_container_width=True, hide_index=True)
 
 # --- Standings ---
+st.header("⚾ League Standings")
 standings = league.standings()
 df_standings = pd.DataFrame([{
     "Overall": idx + 1,
@@ -74,7 +75,6 @@ st.data_editor(
     use_container_width=True
 )
 
-st.header("⚾ League Standings")
 # --- final Standings ---
 def get_top3_for_year(league_id: int, year: int):
     manager = LeagueManager(league_id=league_id, year=year)
