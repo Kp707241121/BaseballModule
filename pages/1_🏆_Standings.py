@@ -4,7 +4,7 @@
 import streamlit as st
 import pandas as pd
 from leagueManager import LeagueManager  # Your LeagueManager class
-
+import manualmatchup as Custom
 st.header("🏆 League Standings")
 
 # Initialize
@@ -60,11 +60,11 @@ for matchup in selected_team.schedule:
     opponent_name = opponent.team_name if opponent else "BYE"
 
     schedule_data.append({
-        "Week": matchup.week,
+        "Week": Custom.week,
         "Opponent": opponent_name,
         "Location": location,
         "Score": score,
-        "OpponentScore": m.away_team_live_score
+        "OpponentScore": matchup.away_team_live_score
     })
 
 df = pd.DataFrame(schedule_data).sort_values(by="Week")
