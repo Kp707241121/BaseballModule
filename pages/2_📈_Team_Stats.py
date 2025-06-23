@@ -6,9 +6,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import plotly.express as px
 from sklearn.preprocessing import MinMaxScaler
-import subprocess
 from leagueManager import LeagueManager
-import getStats 
+import getStats  # This regenerates team_stats.json automatically on app start
 
 # --- Constants ---
 STAT_ORDER = ['R', 'HR', 'RBI', 'OBP', 'SB', 'K', 'W', 'SV', 'ERA', 'WHIP']
@@ -19,30 +18,23 @@ FORMAT_DICT = {stat: "{:.3f}" if stat in FLOAT_COLS else "{:.0f}" for stat in ST
 # --- Page Title ---
 st.title("📈 Accumulated Team Stats")
 
-# --- Auto-refresh stats on app load ---
-with st.spinner("🔄 Refreshing stats..."):
-    result = subprocess.run(["python", "getStats.py"], capture_output=True, text=True)
-    if result.returncode != 0:
-        st.error("❌ Failed to refresh stats.")
-        st.text(result.stderr)
-
 # --- Load Stats ---
 @st.cache_data
-def load_team_stats():
-    with open("team_stats.json") as f:
-        return json.load(f)
+def load_team_stats(path="team_stats.json"):
+    with open(path) as f:
+        data = json.load(f)
+    df = pd.DataFrame.from_dict(data, orient="index")
+    df.index.name = "Team"
+    df = df[STAT_ORDER]
+    return df
 
-team_stats = load_team_stats()
-df = pd.DataFrame.from_dict(team_stats, orient="index")
-df.index.name = "Team"
-df = df[STAT_ORDER]
-df_stats = df.copy()
+df_stats = load_team_stats()
 
 # --- Display Table ---
 st.subheader("📋 Team Stat Table")
-st.dataframe(df.style.format(FORMAT_DICT), use_container_width=True)
+st.dataframe(df_stats.style.format(FORMAT_DICT), use_container_width=True)
 
-# --- League Info for Logos (Optional) ---
+# --- Optional: Logo mapping ---
 manager = LeagueManager(league_id=121531, year=2025)
 league = manager.get_league()
 logo_map = {team.team_name: team.logo_url for team in league.teams}
@@ -54,12 +46,13 @@ bar_ascending = selected_bar_stat in ASCENDING_STATS
 df_sorted_bar = df_stats.sort_values(by=selected_bar_stat, ascending=bar_ascending)
 
 fig_bar, ax_bar = plt.subplots(figsize=(12, 6))
-bars = ax_bar.bar(df_sorted_bar.index, df_sorted_bar[selected_bar_stat], color='lightcoral')
+bars = ax_bar.bar(df_sorted_bar.index, df_sorted_bar[selected_bar_stat])
 ax_bar.set_title(f"{selected_bar_stat} by Team")
 ax_bar.set_xlabel("Team")
 ax_bar.set_ylabel(selected_bar_stat)
 plt.xticks(rotation=45)
 
+# Label bars
 for bar in bars:
     height = bar.get_height()
     label = FORMAT_DICT[selected_bar_stat].format(height)
@@ -82,7 +75,7 @@ ax_line.set_ylabel(selected_line_stat)
 plt.xticks(rotation=45)
 st.pyplot(fig_line)
 
-# --- Radar-Style Comparison ---
+# --- Radar-Style Normalized Comparison ---
 st.subheader("📊 Normalized Stat Comparison (Radar Style)")
 scaler = MinMaxScaler()
 df_normalized = pd.DataFrame(
