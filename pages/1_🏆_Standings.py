@@ -58,9 +58,10 @@ for matchup in selected_team.schedule:
         location = "Away"
 
     opponent_name = opponent.team_name if opponent else "BYE"
-
+    week = getattr(Custom, "matchup_period", None)
+    
     schedule_data.append({
-        "Week": Custom.week,
+        "Week": week,
         "Opponent": opponent_name,
         "Location": location,
         "Score": score,
