@@ -77,23 +77,30 @@ df["Result"] = df.apply(
 )
 st.dataframe(df, use_container_width=True, hide_index=True)
 
+# Function to get top 3 teams from a given year
+def get_top3_for_year(league_id: int, year: int):
+    manager = LeagueManager(league_id=league_id, year=year)
+    league = manager.get_league()
+    top3 = sorted(
+        [team for team in league.teams if team.final_standing > 0],
+        key=lambda t: t.final_standing
+    )[:3]
+    return {
+        "Year": year,
+        "1st Place": top3[0].team_name if len(top3) > 0 else None,
+        "2nd Place": top3[1].team_name if len(top3) > 1 else None,
+        "3rd Place": top3[2].team_name if len(top3) > 2 else None,
+    }
 
-# --- Final Standings Display ---
+# Collect data for multiple years
+standings_summary = [
+    get_top3_for_year(league_id=121531, year=2023),
+    get_top3_for_year(league_id=121531, year=2024)
+]
 
-# For 2024 final standings
-Priormanager = LeagueManager(league_id=121531, year=2024)
-Priorleague = Priormanager.get_league()
+# Create a DataFrame
+df_summary = pd.DataFrame(standings_summary)
 
-final_standings = sorted(
-    [team for team in Priorleague.teams if team.final_standing < 4],
-    key=lambda t: t.final_standing
-)
-
-df = pd.DataFrame([{
-    "Team": team.team_name,
-    "Final Standing": team.final_standing
-} for i, team in enumerate(final_standings)])
-
-
-st.title("🏆 Final Standings (2024)")
-st.dataframe(df, use_container_width=True, hide_index=True)
+# Display in Streamlit
+st.title("🏆 Final Standings Summary")
+st.dataframe(df_summary, use_container_width=True)
