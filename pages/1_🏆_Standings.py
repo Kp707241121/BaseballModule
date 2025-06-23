@@ -52,7 +52,7 @@ for matchup in selected_team.schedule:
     if matchup.home_team == selected_team:
         opponent = matchup.away_team
         location = "Home"
-        score = m.home_team_live_score
+        score = matchup.home_team_live_score
     else:
         opponent = matchup.home_team
         location = "Away"
