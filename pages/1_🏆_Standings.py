@@ -81,13 +81,13 @@ st.dataframe(df, use_container_width=True, hide_index=True)
 # --- Final Standings Display ---
 st.title("🏆 Final Standings")
 
-# Only include teams from 2024 and where final_standing exists
-# For 2023 final standings
+
+# For 2024 final standings
 Priormanager = LeagueManager(league_id=121531, year=2024)
 Priorleague = Priormanager.get_league()
 
 final_standings = sorted(
-    [team for team in Priorleague.teams if team.final_standing > 0],
+    [team for team in Priorleague.teams if team.final_standing < 4],
     key=lambda t: t.final_standing
 )
 
