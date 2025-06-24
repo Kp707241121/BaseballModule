@@ -4,13 +4,6 @@ from teams import Team
 import json
 import datetime
 import pandas as pd
-from login import login  # or adjust import path if needed
-
-# --- Restrict Page Access ---
-if "role" not in st.session_state or st.session_state.role not in ["User", "Admin"]:
-    st.warning("You must log in to access this page.")
-    login()
-    st.stop()
     
 # --- Load team ID → Name mapping ---
 with open("teams.json", "r") as f:
