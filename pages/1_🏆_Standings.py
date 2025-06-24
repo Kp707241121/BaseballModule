@@ -6,21 +6,33 @@ from manualmatchup import Scores# ✅ Use your custom Matchup subclass
 # Inject your patched Scores logic into ESPN League
 from espn_api.baseball import League
 League._matchup_class = Scores  # ✅ Force all matchups to use your patched class
+from login import login  # or adjust import path if needed
 
+# --- Restrict Page Access ---
+if "role" not in st.session_state or st.session_state.role not in ["User", "Admin"]:
+    st.warning("You must log in to access this page.")
+    login()
+    st.stop()
 # --- Init league ---
+
 manager = LeagueManager(league_id=121531, year=2025)
 league = manager.get_league()
 
 # --- Standings ---
 st.header("🏆 League Standings")
 standings = league.standings()
+records = [(team.wins + team.ties / 2) for team in standings]
+max_record = max(records)
+
+# Build DataFrame
 df_standings = pd.DataFrame([{
     "Overall": idx + 1,
     "Logo": team.logo_url,
     "Team": team.team_name,
     "Wins": team.wins,
     "Losses": team.losses,
-    "Ties": team.ties
+    "Ties": team.ties,
+    "GB": round(max_record - (team.wins + team.ties / 2), 1)
 } for idx, team in enumerate(standings)])
 
 st.data_editor(
@@ -31,7 +43,39 @@ st.data_editor(
     hide_index=True,
     use_container_width=True
 )
-# --- Schedule Viewer ---
+
+
+
+# --- final Standings ---
+def get_top3_for_year(league_id: int, year: int):
+    manager = LeagueManager(league_id=league_id, year=year)
+    league = manager.get_league()
+    top3 = sorted(
+        [team for team in league.teams if team.final_standing > 0],
+        key=lambda t: t.final_standing
+    )[:3]
+    return {
+        "📆 Year": year,
+        "🏅 1st Place": top3[0].team_name if len(top3) > 0 else None,
+        "🥈 2nd Place": top3[1].team_name if len(top3) > 1 else None,
+        "🥉 3rd Place": top3[2].team_name if len(top3) > 2 else None,
+    }
+
+# Collect data for multiple years
+standings_summary = [
+    get_top3_for_year(league_id=121531, year=2024),
+    get_top3_for_year(league_id=121531, year=2023)
+]
+
+# Create a DataFrame
+df_summary = pd.DataFrame(standings_summary)
+
+# Display in Streamlit
+st.header("👑 Final Standings")
+st.dataframe(df_summary, use_container_width=True, hide_index=True)
+
+# --- Schedule ---
+
 st.header("📅 Team Schedule Viewer")
 schedule_data = []
 
@@ -72,31 +116,3 @@ df["Result"] = df.apply(
     axis=1
 )
 st.dataframe(df, use_container_width=True, hide_index=True)
-
-# --- final Standings ---
-def get_top3_for_year(league_id: int, year: int):
-    manager = LeagueManager(league_id=league_id, year=year)
-    league = manager.get_league()
-    top3 = sorted(
-        [team for team in league.teams if team.final_standing > 0],
-        key=lambda t: t.final_standing
-    )[:3]
-    return {
-        "📆 Year": year,
-        "🏅 1st Place": top3[0].team_name if len(top3) > 0 else None,
-        "🥈 2nd Place": top3[1].team_name if len(top3) > 1 else None,
-        "🥉 3rd Place": top3[2].team_name if len(top3) > 2 else None,
-    }
-
-# Collect data for multiple years
-standings_summary = [
-    get_top3_for_year(league_id=121531, year=2024),
-    get_top3_for_year(league_id=121531, year=2023)
-]
-
-# Create a DataFrame
-df_summary = pd.DataFrame(standings_summary)
-
-# Display in Streamlit
-st.header("👑 Final Standings")
-st.dataframe(df_summary, use_container_width=True, hide_index=True)
