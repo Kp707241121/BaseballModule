@@ -29,10 +29,6 @@ class LeagueManager:
     def get_league(self):
         return self.league
 
-    def list_teams(self):
-        for team in self.league.teams:
-            print(f"{team.team_id}: {team.team_name}")
-
 class FreeAgents:
     def __init__(self, league_manager: LeagueManager):
         self.league = league_manager.get_league()
@@ -45,7 +41,8 @@ class FreeAgents:
                 fa_pool = self.league.free_agents(size=100, position_id=pid)
                 names = [str(p).replace("Player(", "").replace(")", "").strip() for p in fa_pool]
                 agents[pos] = {
-                    p["id"]: p["fullName"] for p in self.lookup_players(names) if "id" in p and "fullName" in p
+                    p["id"]: p["fullName"] for p in self.lookup_players(names)
+                    if "id" in p and "fullName" in p
                 }
             except Exception as e:
                 print(f"⚠️ Error fetching FA for {pos}: {e}")
@@ -61,16 +58,9 @@ class FreeAgents:
                 print(f"⚠️ Lookup failed for '{name}': {e}")
         return players
 
-if __name__ == "__main__":
-    manager = LeagueManager(league_id=121531, year=2025)
-    league = manager.get_league()
-
-    print("\n📋 Active Teams in League:")
-    team_map = {}
-    for team in league.teams:
-        print(f"ID: {team.team_id} → {team.team_name}")
-        team_map[team.team_id] = team.team_name
-
-    with open("teams.json", "w") as f:
-        json.dump(team_map, f, indent=4)
-    print("\n✅ Saved updated teams.json")
+    def save_to_json(self, path):
+        directory = os.path.dirname(path)
+        if directory:
+            os.makedirs(directory, exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(self.get_free_agents(), f, indent=2, ensure_ascii=False)
