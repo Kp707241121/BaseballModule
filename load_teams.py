@@ -7,14 +7,7 @@ from teams import Team
 with open("teams.json", "r") as f:
     team_dict = json.load(f)
 
-# Function to get team_index by team_id
-def get_team_index_by_id(league, team_id):
-    for i, team in enumerate(league.teams):
-        if team.team_id == team_id:
-            return i
-    raise ValueError(f"Team ID '{team_id}' not found in league.")
-
-# Create a folder to store rosters
+# Create output folder
 output_dir = "rosters"
 os.makedirs(output_dir, exist_ok=True)
 
@@ -22,15 +15,12 @@ os.makedirs(output_dir, exist_ok=True)
 manager = LeagueManager(league_id=121531, year=2025)
 league = manager.get_league()
 
-# Loop through each team
+# Loop through each team using team_id directly
 for team_id_str, team_name in team_dict.items():
     team_id = int(team_id_str)
     try:
-        team_index = get_team_index_by_id(league, team_id)
-        team = Team(league, team_index)
-
-        # Build roster data
-        roster_list = team.get_roster()
+        team = Team(league, team_id)
+        roster_list = team.get_roster()  # Already returns a list of dicts
 
         # Clean filename
         safe_name = team_name.replace(" ", "_").replace("/", "_")
@@ -42,5 +32,10 @@ for team_id_str, team_name in team_dict.items():
 
         print(f"✅ Saved roster for '{team_name}' to {file_path}")
 
-    except ValueError as e:
+    except Exception as e:
         print(f"❌ Skipping {team_name}: {e}")
+
+print("\n📋 Actual Teams in League:")
+for t in league.teams:
+    print(f"ID: {t.team_id} → {t.team_name}")
+

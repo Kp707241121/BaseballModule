@@ -64,13 +64,13 @@ class FreeAgents:
 if __name__ == "__main__":
     manager = LeagueManager(league_id=121531, year=2025)
     league = manager.get_league()
-    manager.list_teams()
+
+    print("\n📋 Active Teams in League:")
+    team_map = {}
+    for team in league.teams:
+        print(f"ID: {team.team_id} → {team.team_name}")
+        team_map[team.team_id] = team.team_name
 
     with open("teams.json", "w") as f:
-        json.dump({team.team_id: team.team_name for team in league.teams}, f, indent=4)
-    print("✅ Saved teams.json")
-
-    fa = FreeAgents(manager)
-    free_agents = fa.get_free_agents()
-    for pos, players in free_agents.items():
-        print(f"{pos}: {list(players.values())[:5]}")
+        json.dump(team_map, f, indent=4)
+    print("\n✅ Saved updated teams.json")

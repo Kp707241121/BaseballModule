@@ -70,7 +70,7 @@ def compute_team_stats():
 
     return ordered_output
 
-# Generate stats immediately if imported
-final_stats = compute_team_stats()
-with open("team_stats.json", "w") as f:
-    json.dump(final_stats, f, indent=4)
+if __name__ == "__main__":
+    final_stats = compute_team_stats()
+    with open("team_stats.json", "w") as f:
+        json.dump(final_stats, f, indent=4)

@@ -1,19 +1,22 @@
 # main.py
-import sys
 import streamlit as st
 
 st.set_page_config(
     page_title="Fantasy Baseball Dashboard",
     page_icon="⚾",
     layout="wide",
+    initial_sidebar_state="expanded"  # 👈 Prevent sidebar from collapsing
 )
 
-st.title("⚾ Welcome to the Fantasy Baseball Dashboard")
+st.title("⚾ Fantasy Baseball Dashboard")
 st.markdown("""
-This dashboard lets you explore:
+
 - 🏆 Standings  
+- 📅 Schedule            
 - 📈 Team stats  
-- 🧭 Radar
-- ⚾ Rosters     
-Use the left sidebar to navigate between pages.
+- 🧢 Rosters  
+
+⬅️ Use the left sidebar to navigate between pages  
+❗ Select 'USER' when prompted to log in ❗
 """)
+
