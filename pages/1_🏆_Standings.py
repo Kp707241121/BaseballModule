@@ -6,13 +6,7 @@ from manualmatchup import Scores# ✅ Use your custom Matchup subclass
 # Inject your patched Scores logic into ESPN League
 from espn_api.baseball import League
 League._matchup_class = Scores  # ✅ Force all matchups to use your patched class
-from login import login  # or adjust import path if needed
 
-# --- Restrict Page Access ---
-if "role" not in st.session_state or st.session_state.role not in ["User", "Admin"]:
-    st.warning("You must log in to access this page.")
-    login()
-    st.stop()
 # --- Init league ---
 
 manager = LeagueManager(league_id=121531, year=2025)
