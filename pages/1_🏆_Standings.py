@@ -44,7 +44,11 @@ st.data_editor(
     use_container_width=True
 )
 
+def highlight_leader(row):
+    return ['background-color: #2ECC71' if row.name == 0 else '' for _ in row]
 
+styled_df = df_standings.style.apply(highlight_leader, axis=1)
+st.dataframe(styled_df, use_container_width=True)
 
 # --- final Standings ---
 def get_top3_for_year(league_id: int, year: int):
