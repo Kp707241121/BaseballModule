@@ -8,13 +8,7 @@ import plotly.express as px
 from sklearn.preprocessing import MinMaxScaler
 from leagueManager import LeagueManager
 import getStats  # Contains compute_team_stats()
-from login import login  # or adjust import path if needed
 
-# --- Restrict Page Access ---
-if "role" not in st.session_state or st.session_state.role not in ["User", "Admin"]:
-    st.warning("You must log in to access this page.")
-    login()
-    st.stop()
 # --- Constants ---
 STAT_ORDER = ['R', 'HR', 'RBI', 'OBP', 'SB', 'K', 'W', 'SV', 'ERA', 'WHIP']
 ASCENDING_STATS = {'ERA', 'WHIP'}
