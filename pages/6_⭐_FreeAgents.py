@@ -6,8 +6,9 @@ import pandas as pd
 import plotly.express as px
 from login import login  # or adjust import path if needed
 
-# --- Restrict Page Access ---
-if "role" not in st.session_state or st.session_state.role not in ["Admin"]:
-    st.warning("You must log in to access this page.")
+st.title("🔐 Admin Page: Free Agents")
+# If role not set or not Admin, enforce login
+if st.session_state.get("role") != "Admin":
+    st.warning("🔒 Admin access required")
     login()
     st.stop()
