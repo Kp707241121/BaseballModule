@@ -21,15 +21,14 @@ st.title("📈 Accumulated Team Stats")
 # --- Button to Refresh Stats ---
 if st.button("🔄 Refresh Team Stats"):
     with st.spinner("Recomputing team stats..."):
-        getStats.compute_team_stats()
         st.cache_data.clear()
         st.rerun()
 
 # --- Load Cached Stats ---
 @st.cache_data
-def load_team_stats(path="team_stats.json"):
-    with open(path) as f:
-        data = json.load(f)
+def load_team_stats():
+    from getStats import compute_team_stats
+    data = compute_team_stats()
     df = pd.DataFrame.from_dict(data, orient="index")
     df.index.name = "Team"
     df = df[STAT_ORDER]
