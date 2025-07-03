@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import plotly.express as px
 from sklearn.preprocessing import MinMaxScaler
 from leagueManager import LeagueManager
-import getStats  # Contains compute_team_stats()
+import getStats  # Contains compute_team_stats()0
 
 # --- Constants ---
 STAT_ORDER = ['R', 'HR', 'RBI', 'OBP', 'SB', 'K', 'W', 'SV', 'ERA', 'WHIP']
@@ -110,6 +110,5 @@ fig_radar = px.line(
     markers=True,
     title="Normalized Stat Comparison Across Teams"
 )
-fig_radar.update_traces(fill='toself')
 st.plotly_chart(fig_radar)
   
