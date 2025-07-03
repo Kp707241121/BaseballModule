@@ -83,6 +83,8 @@ st.pyplot(fig_line)
 
 # --- Radar Chart ---
 st.subheader("📊 Normalized Stat Comparison (Radar Style)")
+
+# Normalize
 scaler = MinMaxScaler()
 df_normalized = pd.DataFrame(
     scaler.fit_transform(df_stats),
@@ -90,8 +92,15 @@ df_normalized = pd.DataFrame(
     index=df_stats.index
 )
 
+# Invert ERA and WHIP only
+for stat in ['ERA', 'WHIP']:
+    if stat in df_normalized.columns:
+        df_normalized[stat] = 1 - df_normalized[stat]
+
+# Melt for plotting
 df_melted = df_normalized.reset_index().melt(id_vars="Team", var_name="Stat", value_name="Value")
 
+# Plot radar-style line chart
 fig_radar = px.line(
     df_melted,
     x="Stat",
@@ -101,5 +110,6 @@ fig_radar = px.line(
     markers=True,
     title="Normalized Stat Comparison Across Teams"
 )
-
+fig_radar.update_traces(fill='toself')
 st.plotly_chart(fig_radar)
+  
