@@ -8,10 +8,10 @@ from leagueManager import LeagueManager
 from free_agents import FreeAgents
 
 # --- Restrict Page Access ---
-"""if "role" not in st.session_state or st.session_state.role not in ["User", "Admin"]:
+if "role" not in st.session_state or st.session_state.role not in ["User", "Admin"]:
     st.warning("You must log in to access this page.")
     login()
-    st.stop()"""
+    st.stop()
     
 PITCHING_STATS = ['K', 'W', 'SV', 'ERA', 'WHIP']
 HITTING_STATS = ['R', 'HR', 'RBI', 'OBP', 'SB']
