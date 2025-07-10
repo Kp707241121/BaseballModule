@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 from espn_api.baseball import League
 from custom_box_score import H2HCategoryBoxScore
-
+from patched_league import PatchedLeague as League
 
 class LeagueManager:
     def __init__(self, league_id: int, year: int):

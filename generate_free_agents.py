@@ -4,11 +4,15 @@ from free_agents import FreeAgents
 manager = LeagueManager(league_id=121531, year=2025)
 fa = FreeAgents(manager)
 
-free_agents = fa.get_free_agents()
+free_agents = fa.get_free_agents(size=5)
 
-# Print top 3 agents in each position group
-for pos, agents in free_agents.items():
-    print(f"\n{pos}:")
-    for name in list(agents.values())[:3]:
-        print("  ", name)
+PITCHING_STATS = ['K', 'W', 'SV', 'ERA', 'WHIP']
+HITTING_STATS = ['R', 'HR', 'RBI', 'OBP', 'SB']
 
+for position, players in free_agents.items():
+    print(f"\nPosition: {position}")
+    for name, stats in players.items():
+        print(f"  Name: {name}")
+        relevant_stats = PITCHING_STATS if position in {"SP", "RP", "SP/RP"} else HITTING_STATS
+        for stat in relevant_stats:
+            print(f"    {stat}: {stats.get(stat, 0)}")
