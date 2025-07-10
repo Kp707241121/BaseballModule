@@ -2,23 +2,33 @@
 
 import streamlit as st
 import pandas as pd
-import json
 import plotly.express as px
 from login import login  # or adjust import path if needed
+from leagueManager import LeagueManager
+from free_agents import FreeAgents
 
 # --- Restrict Page Access ---
-if "role" not in st.session_state or st.session_state.role not in ["User", "Admin"]:
+"""if "role" not in st.session_state or st.session_state.role not in ["User", "Admin"]:
     st.warning("You must log in to access this page.")
     login()
-    st.stop()
+    st.stop()"""
     
 PITCHING_STATS = ['K', 'W', 'SV', 'ERA', 'WHIP']
 HITTING_STATS = ['R', 'HR', 'RBI', 'OBP', 'SB']
-INVERT_STATS = {'ERA', 'WHIP', 'OBP'}
+INVERT_STATS = {'ERA', 'WHIP'}
 
 # Load Free Agent Data
-with open("free_agents.json", "r", encoding="utf-8") as f:
-    free_agents = json.load(f)
+@st.cache_data
+def load_free_agents():
+    manager = LeagueManager(league_id=121531, year=2025)
+    fa = FreeAgents(manager)
+    return fa.get_free_agents()
+
+if st.button("🔄 Refresh Free Agent Data"):
+    st.cache_data.clear()
+    st.rerun()
+
+free_agents = load_free_agents()
 
 # Helper to flatten dictionary into DataFrame
 def flatten(fa_dict, stat_keys):
