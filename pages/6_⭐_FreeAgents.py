@@ -93,8 +93,9 @@ selected_pitcher_sort = st.selectbox("Sort Pitchers By", PITCHING_STATS, key="pi
 
 raw_pitch, norm_pitch = flatten_group(agents, selected_pitcher_group, PITCHING_STATS)
 if not raw_pitch.empty:
-    raw_pitch = raw_pitch.sort_values(by=selected_pitcher_sort, ascending=False)
-    norm_pitch = norm_pitch.loc[raw_pitch.index]  # keep same order
+    ascending = selected_pitcher_sort in INVERT_STATS
+    raw_pitch = raw_pitch.sort_values(by=selected_pitcher_sort, ascending=ascending)
+    norm_pitch = norm_pitch.loc[raw_pitch.index]
 
     fig_pitch = px.imshow(
         norm_pitch,
