@@ -1,4 +1,4 @@
-# pages/6_🧭_FreeAgent_Radar.py
+# pages/6_🧭_FreeAgents.py
 
 import streamlit as st
 import pandas as pd
