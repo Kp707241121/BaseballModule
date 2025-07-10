@@ -1,86 +1,109 @@
-# pages/6_🧭_FreeAgents.py
 
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from login import login  # or adjust import path if needed
 from leagueManager import LeagueManager
 from free_agents import FreeAgents
 
-# --- Restrict Page Access ---
-if "role" not in st.session_state or st.session_state.role not in ["User", "Admin"]:
-    st.warning("You must log in to access this page.")
-    login()
-    st.stop()
-    
+# --- Constants ---
 PITCHING_STATS = ['K', 'W', 'SV', 'ERA', 'WHIP']
 HITTING_STATS = ['R', 'HR', 'RBI', 'OBP', 'SB']
 INVERT_STATS = {'ERA', 'WHIP'}
+HITTER_GROUPS = ["OF", "IF", "DH"]
+PITCHER_GROUPS = ["SP", "RP"]
+SPLIT_OPTIONS = {
+    "Season": 0,
+    "Last 7 Days": 1,
+    "Last 15 Days": 2,
+    "Last 30 Days": 3
+}
 
-# Load Free Agent Data
+# --- Load Free Agents ---
 @st.cache_data
-def load_free_agents():
+def load_agents(stat_split_type):
     manager = LeagueManager(league_id=121531, year=2025)
-    fa = FreeAgents(manager)
-    return fa.get_free_agents()
+    return FreeAgents(manager).get_free_agents(size=50, stat_split_type=stat_split_type)
 
-if st.button("🔄 Refresh Free Agent Data"):
-    st.cache_data.clear()
-    st.rerun()
-
-free_agents = load_free_agents()
-
-# Helper to flatten dictionary into DataFrame
-def flatten(fa_dict, stat_keys):
-    data = []
-    for position, players in fa_dict.items():
-        for name, stats in players.items():
-            if all(k in stats for k in stat_keys):
-                entry = {"Player": name, "Position": position}
-                entry.update({k: stats[k] for k in stat_keys})
-                data.append(entry)
-    return pd.DataFrame(data)
-
-# Normalize stats
+# --- Normalize for Heatmap Color ---
 def normalize(df, stat_keys):
-    df_norm = df.copy()
+    norm_df = df.copy()
     for stat in stat_keys:
-        min_val = df[stat].min()
-        max_val = df[stat].max()
-        if max_val != min_val:
-            df_norm[stat] = (df[stat] - min_val) / (max_val - min_val)
-        else:
-            df_norm[stat] = 0.5
+        min_val, max_val = df[stat].min(), df[stat].max()
+        norm_df[stat] = (df[stat] - min_val) / (max_val - min_val) if max_val != min_val else 0.5
         if stat in INVERT_STATS:
-            df_norm[stat] = 1 - df_norm[stat]
-    return df_norm
+            norm_df[stat] = 1 - norm_df[stat]
+    return norm_df
 
-# Split hitters and pitchers
-pitch_df = flatten({k: v for k, v in free_agents.items() if k in {"SP", "RP"}}, PITCHING_STATS)
-hit_df = flatten({k: v for k, v in free_agents.items() if k not in {"SP", "RP"}}, HITTING_STATS)
+# --- Flatten by Group ---
+def flatten_group(data, pos_label, stat_keys):
+    if pos_label not in data:
+        return pd.DataFrame(), pd.DataFrame()
+    rows = []
+    for player, info in data[pos_label].items():
+        row = {"Player": player}
+        row.update({stat: info["stats"].get(stat, 0) for stat in stat_keys})
+        rows.append(row)
 
-pitch_df_norm = normalize(pitch_df, PITCHING_STATS)
-hit_df_norm = normalize(hit_df, HITTING_STATS)
+    if not rows:
+        print(f"⚠️ No rows found for {pos_label}. Check agent data or filters.")
+    
+    raw_df = pd.DataFrame(rows)
 
-# Streamlit UI
-st.title("🧭 Free Agent Radar Charts")
+    if "Player" not in raw_df.columns:
+        
+        print(f"⚠️ 'Player' column missing. Data: {raw_df}")
+    raw_df = raw_df.set_index("Player")
+    norm_df = normalize(raw_df, stat_keys)
+    return raw_df, norm_df
 
-st.subheader("Pitchers (SP & RP)")
-pitchers = st.multiselect("Select Pitchers", pitch_df_norm["Player"].tolist())
-if pitchers:
-    long_df = pitch_df_norm[pitch_df_norm["Player"].isin(pitchers)].melt(
-        id_vars="Player", value_vars=PITCHING_STATS, var_name="Stat", value_name="Value"
+# --- UI ---
+st.title("🧊 Free Agent Heatmap Comparison")
+
+split_label = st.selectbox("Choose Stat Range", list(SPLIT_OPTIONS.keys()))
+split_type = SPLIT_OPTIONS[split_label]
+agents = load_agents(split_type)
+
+# --- Hitters ---
+st.subheader("📌 Hitters")
+selected_hitter_group = st.selectbox("Select Hitter Group", HITTER_GROUPS)
+selected_hitter_sort = st.selectbox("Sort Hitters By", HITTING_STATS, key="hitter_sort")
+
+raw_hit, norm_hit = flatten_group(agents, selected_hitter_group, HITTING_STATS)
+if not raw_hit.empty:
+    raw_hit = raw_hit.sort_values(by=selected_hitter_sort, ascending=False)
+    norm_hit = norm_hit.loc[raw_hit.index]  # keep same order
+
+    fig_hit = px.imshow(
+        norm_hit,
+        color_continuous_scale="RdBu_r",
+        aspect="auto",
+        labels=dict(color="Normalized"),
+        title=f"{selected_hitter_group} Heatmap (Sorted by {selected_hitter_sort})",
+        zmin=0, zmax=1
     )
-    fig = px.line_polar(long_df, r="Value", theta="Stat", color="Player", line_close=True)
-    fig.update_traces(fill='toself')
-    st.plotly_chart(fig)
 
-st.subheader("Hitters (Other Positions)")
-hitters = st.multiselect("Select Hitters", hit_df_norm["Player"].tolist())
-if hitters:
-    long_df = hit_df_norm[hit_df_norm["Player"].isin(hitters)].melt(
-        id_vars="Player", value_vars=HITTING_STATS, var_name="Stat", value_name="Value"
+    st.plotly_chart(fig_hit, use_container_width=True)
+else:
+    st.info("No hitter data available.")
+
+# --- Pitchers ---
+st.subheader("📌 Pitchers")
+selected_pitcher_group = st.selectbox("Select Pitcher Group", PITCHER_GROUPS)
+selected_pitcher_sort = st.selectbox("Sort Pitchers By", PITCHING_STATS, key="pitcher_sort")
+
+raw_pitch, norm_pitch = flatten_group(agents, selected_pitcher_group, PITCHING_STATS)
+if not raw_pitch.empty:
+    raw_pitch = raw_pitch.sort_values(by=selected_pitcher_sort, ascending=False)
+    norm_pitch = norm_pitch.loc[raw_pitch.index]  # keep same order
+
+    fig_pitch = px.imshow(
+        norm_pitch,
+        color_continuous_scale="RdBu_r",
+        aspect="auto",
+        labels=dict(color="Normalized"),
+        title=f"{selected_pitcher_group} Heatmap (Sorted by {selected_pitcher_sort})",
+        zmin=0, zmax=1
     )
-    fig = px.line_polar(long_df, r="Value", theta="Stat", color="Player", line_close=True)
-    fig.update_traces(fill='toself')
-    st.plotly_chart(fig)
+    st.plotly_chart(fig_pitch, use_container_width=True)
+else:
+    st.info("No pitcher data available.")
