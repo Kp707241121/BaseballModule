@@ -1,4 +1,4 @@
-# pages/5_🧭_Radar.py
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -8,20 +8,31 @@ from sklearn.preprocessing import MinMaxScaler
 STAT_ORDER = ['R', 'HR', 'RBI', 'OBP', 'SB', 'K', 'W', 'SV', 'ERA', 'WHIP']
 INVERT_STATS = {'ERA', 'WHIP'}
 
+from week   import compute_week_stats
+from season import compute_season_stats
+
+mode = st.radio("Stats for…", ["Season","Week"], horizontal=True)
+compute_fn = compute_week_stats if mode=="Week" else compute_season_stats
+
 # --- Page Title ---
 st.title("🧭 Team Stat Radar Charts")
 
 # --- Load and Normalize Cached Stats ---
 @st.cache_data
-def load_team_stats():
-    from getStats import compute_team_stats
-    data = compute_team_stats()
-    df = pd.DataFrame.from_dict(data, orient="index")
+def load_team_df(selected_mode: str) -> pd.DataFrame:
+    """
+    Pulls from week.py or season.py based on selected_mode,
+    returns a DataFrame indexed by Team, with columns STAT_ORDER.
+    """
+    fn   = compute_week_stats if selected_mode=="Week" else compute_season_stats
+    data = fn()
+    df   = pd.DataFrame.from_dict(data, orient="index")
     df.index.name = "Team"
-    df = df[STAT_ORDER]
-    return df
+    # reorder columns
+    return df[STAT_ORDER]
 
-df_stats = load_team_stats()
+# load data
+df_stats = load_team_df(mode)
 
 # --- Display Data Table ---
 scaler = MinMaxScaler()

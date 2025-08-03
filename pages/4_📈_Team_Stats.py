@@ -2,18 +2,24 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import plotly.express as px
-from sklearn.preprocessing import MinMaxScaler
 from leagueManager import LeagueManager
 import matplotlib.cm as cm
 import matplotlib.colors as mcolors
+import matplotlib.pyplot as plt
+import plotly.express as px
+from sklearn.preprocessing import MinMaxScaler
 
+# import both flavors
+from week   import compute_week_stats
+from season import compute_season_stats
 # --- Constants ---
-STAT_ORDER = ['R', 'HR', 'RBI', 'OBP', 'SB', 'K', 'W', 'SV', 'ERA', 'WHIP']
-FORMAT_RED = {'R', 'HR', 'RBI', 'OBP', 'SB', 'K', 'W', 'SV'}
-ASCENDING_STATS = {'ERA', 'WHIP'}
-FLOAT_COLS = {'OBP', 'ERA', 'WHIP'}
-FORMAT_DICT = {stat: "{:.3f}" if stat in FLOAT_COLS else "{:.0f}" for stat in STAT_ORDER}
+STAT_ORDER     = ['R','HR','RBI','OBP','SB','K','W','SV','ERA','WHIP']
+FORMAT_RED     = {'R','HR','RBI','OBP','SB','K','W','SV'}
+ASCENDING_STATS= {'ERA','WHIP'}
+FLOAT_COLS     = {'OBP','ERA','WHIP'}
+FORMAT_DICT    = {s:"{:.3f}" if s in FLOAT_COLS else "{:.0f}" 
+                  for s in STAT_ORDER}
+
 
 # --- Highlight Function ---
 def highlight_rank(col):
@@ -43,26 +49,34 @@ def highlight_rank(col):
 # --- Page Title ---
 st.title("📈 Accumulated Team Stats")
 
-# --- Refresh Button ---
-if st.button("🔄 Refresh Team Stats"):
+# allow user to choose “Week” vs “Season”
+mode = st.radio("Stats for…", ["Season","Week"], horizontal=True)
+compute_fn = compute_week_stats if mode=="Week" else compute_season_stats
+
+# Refresh button
+if st.button("🔄 Refresh"):
     with st.spinner("Recomputing team stats..."):
         st.cache_data.clear()
         st.rerun()
 
-# --- Load Cached Stats ---
 @st.cache_data
-def load_team_stats():
-    from getStats import compute_team_stats
-    data = compute_team_stats()
-    df = pd.DataFrame.from_dict(data, orient="index")
+def load_team_df(selected_mode: str) -> pd.DataFrame:
+    """
+    Pulls from week.py or season.py based on selected_mode,
+    returns a DataFrame indexed by Team, with columns STAT_ORDER.
+    """
+    fn   = compute_week_stats if selected_mode=="Week" else compute_season_stats
+    data = fn()
+    df   = pd.DataFrame.from_dict(data, orient="index")
     df.index.name = "Team"
-    df = df[STAT_ORDER]
-    return df
+    # reorder columns
+    return df[STAT_ORDER]
 
-df_stats = load_team_stats()
+# load data
+df_stats = load_team_df(mode)
 
-# --- Display Data Table ---
-st.subheader("📋 Team Stat Table")
+# --- Table ---
+st.subheader(f"📋 {mode}ly Team Stat Table")
 st.dataframe(
     df_stats.style
         .format(FORMAT_DICT)
@@ -70,31 +84,28 @@ st.dataframe(
     use_container_width=True
 )
 
-# --- Optional: Logo Mapping ---
+# --- Logos (unchanged) ---
 manager = LeagueManager(league_id=121531, year=2025)
-league = manager.get_league()
-logo_map = {team.team_name: team.logo_url for team in league.teams}
+league  = manager.get_league()
+logo_map= {t.team_name:t.logo_url for t in league.teams}
 
-# --- Bar Chart ---
+# --- Bar chart ---
 st.subheader("📊 Bar Chart Comparison")
-selected_bar_stat = st.selectbox("Choose a stat for bar chart", STAT_ORDER, key="bar_chart")
-bar_ascending = selected_bar_stat in ASCENDING_STATS
-df_sorted_bar = df_stats.sort_values(by=selected_bar_stat, ascending=bar_ascending)
+stat_bar    = st.selectbox("Bar:", STAT_ORDER, key="bar")
+asc_bar     = stat_bar in ASCENDING_STATS
+df_bar      = df_stats.sort_values(stat_bar, ascending=asc_bar)
 
-fig_bar, ax_bar = plt.subplots(figsize=(12, 6))
-bars = ax_bar.bar(df_sorted_bar.index, df_sorted_bar[selected_bar_stat], color='darkblue')
-ax_bar.set_title(f"{selected_bar_stat} by Team")
-ax_bar.set_xlabel("Team")
-ax_bar.set_ylabel(selected_bar_stat)
-plt.xticks(rotation=45)
-
-for bar in bars:
-    height = bar.get_height()
-    label = FORMAT_DICT[selected_bar_stat].format(height)
-    offset = (df_sorted_bar[selected_bar_stat].max() - df_sorted_bar[selected_bar_stat].min()) * 0.01 or 0.1
-    ax_bar.text(bar.get_x() + bar.get_width() / 2, height + offset, label, ha='center', va='bottom')
-
-st.pyplot(fig_bar)
+fig1, ax1 = plt.subplots(figsize=(12,6))
+bars     = ax1.bar(df_bar.index, df_bar[stat_bar], color='darkblue')
+ax1.set_title(f"{mode} {stat_bar}")
+ax1.set_xticklabels(df_bar.index, rotation=45)
+for b in bars:
+    h    = b.get_height()
+    fmt  = FORMAT_DICT[stat_bar].format(h)
+    off  = (df_bar[stat_bar].max()-df_bar[stat_bar].min())*0.01 or 0.1
+    ax1.text(b.get_x()+b.get_width()/2, h+off, fmt,
+             ha='center', va='bottom')
+st.pyplot(fig1)
 
 # --- Line Chart ---
 st.subheader("📈 Line Chart Comparison")
@@ -104,7 +115,7 @@ df_sorted_line = df_stats.sort_values(by=selected_line_stat, ascending=line_asce
 
 fig_line, ax_line = plt.subplots(figsize=(12, 6))
 ax_line.plot(df_sorted_line.index, df_sorted_line[selected_line_stat], marker='o', color='darkblue')
-ax_line.set_title(f"{selected_line_stat} by Team")
+ax_line.set_title(f"{mode} {selected_line_stat}")
 ax_line.set_xlabel("Team")
 ax_line.set_ylabel(selected_line_stat)
 plt.xticks(rotation=45)
