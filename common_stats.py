@@ -61,8 +61,8 @@ def compute_team_stats(league, *, periods, stat_order, avg_stats):
         whip = round(((stats['P_BB'] + stats['P_H']) / ip), 3) if ip else 0
 
         for stat in stat_order:
-            if stat == 'ERA':
-            updated_stats['IP'] = ip
+            if stat == 'IP':
+                updated_stats['IP'] = ip
             elif stat == 'ERA':
                 updated_stats['ERA'] = era
             elif stat == 'WHIP':
